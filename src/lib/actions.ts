@@ -1,5 +1,4 @@
-"use server";
-
+'use server';
 import { suggestMetrics } from "@/ai/flows/suggest-metrics";
 import { suggestReductionStrategies } from "@/ai/flows/reduction-suggestions";
 import type { CarbonData } from "@/types";

@@ -1,5 +1,4 @@
 'use server';
-
 /**
  * @fileOverview This file defines a Genkit flow for suggesting relevant carbon footprint metrics based on the user's industry sector.
  *
@@ -7,7 +6,6 @@
  * - SuggestMetricsInput - The input type for the suggestMetrics function.
  * - SuggestMetricsOutput - The return type for the suggestMetrics function.
  */
-
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 

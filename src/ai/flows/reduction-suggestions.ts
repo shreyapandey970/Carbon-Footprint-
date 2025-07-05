@@ -1,4 +1,3 @@
-// src/ai/flows/reduction-suggestions.ts
 'use server';
 /**
  * @fileOverview Provides AI-powered suggestions for reducing a company's carbon footprint based on provided emissions data.
@@ -7,7 +6,6 @@
  * - ReductionSuggestionsInput - The input type for the suggestReductionStrategies function.
  * - ReductionSuggestionsOutput - The return type for the suggestReductionStrategies function.
  */
-
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
