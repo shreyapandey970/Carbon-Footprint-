@@ -46,9 +46,9 @@ export default function Home() {
 
   const chartData = carbonData
     ? [
-        { name: "Scope 1", value: carbonData.scope1Emissions, fill: "var(--color-chart-1)" },
-        { name: "Scope 2", value: carbonData.scope2Emissions, fill: "var(--color-chart-2)" },
-        { name: "Scope 3", value: carbonData.scope3Emissions, fill: "var(--color-chart-4)" },
+        { name: "Scope 1", value: carbonData.scope1Emissions, fill: "#3b82f6" },
+        { name: "Scope 2", value: carbonData.scope2Emissions, fill: "#f97316" },
+        { name: "Scope 3", value: carbonData.scope3Emissions, fill: "#facc15" },
       ].filter(d => d.value > 0)
     : [];
 
