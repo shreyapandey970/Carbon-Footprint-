@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { CarbonData } from "@/types";
@@ -36,17 +36,16 @@ const formSchema = z.object({
 
 interface DataInputFormProps {
   onSubmit: (data: CarbonData) => void;
-  initialData?: CarbonData | null;
   isProcessing: boolean;
 }
 
-export function DataInputForm({ onSubmit, initialData, isProcessing }: DataInputFormProps) {
+export function DataInputForm({ onSubmit, isProcessing }: DataInputFormProps) {
   const [suggestedMetrics, setSuggestedMetrics] = useState<string[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: {
       companyName: "",
       industrySector: "",
       scope1Emissions: 0,

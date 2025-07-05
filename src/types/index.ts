@@ -8,3 +8,10 @@ export interface CarbonData {
   travelEmissions: number;
   wasteEmissions: number;
 }
+
+export interface HistoryEntry extends CarbonData {
+  id: string;
+  timestamp: string;
+  totalEmissions: number;
+  carbonScore: number | null;
+}

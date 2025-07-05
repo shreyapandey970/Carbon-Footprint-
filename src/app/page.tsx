@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { CarbonData } from "@/types";
+import type { CarbonData, HistoryEntry } from "@/types";
 import type { ReductionSuggestionsOutput } from "@/ai/flows/reduction-suggestions";
 import { Header } from "@/components/Header";
 import { DataInputForm } from "@/components/DataInputForm";
@@ -9,40 +9,46 @@ import { FootprintChart } from "@/components/FootprintChart";
 import { ReductionSuggestions } from "@/components/ReductionSuggestions";
 import { CarbonScore } from "@/components/CarbonScore";
 import { Badges } from "@/components/Badges";
+import { HistoryLog } from "@/components/HistoryLog";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReductionStrategies } from "@/lib/actions";
 import { Award, Zap, Bike, Trash2 } from "lucide-react";
 
 export default function Home() {
-  const [isMounted, setIsMounted] = useState(false);
   const [carbonData, setCarbonData] = useState<CarbonData | null>(null);
   const [suggestions, setSuggestions] =
     useState<ReductionSuggestionsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
-    setIsMounted(true);
-    const savedData = localStorage.getItem("carbonData");
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      setCarbonData(parsedData);
-      // Re-run suggestions if data is loaded from storage
-      if (parsedData) {
-        handleDataSubmit(parsedData, true);
-      }
+    const savedHistory = localStorage.getItem("carbonHistory");
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
     }
   }, []);
 
-  const handleDataSubmit = async (data: CarbonData, isReload: boolean = false) => {
+  const handleDataSubmit = async (data: CarbonData) => {
     setIsLoading(true);
     setCarbonData(data);
-    if (!isReload) {
-      setSuggestions(null);
-    }
+    setSuggestions(null);
+
+    const totalEmissions = data.scope1Emissions + data.scope2Emissions + data.scope3Emissions;
+    const carbonScore = Math.max(0, Math.round(1000 - totalEmissions / 5));
+    const newHistoryEntry: HistoryEntry = {
+        ...data,
+        id: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        totalEmissions,
+        carbonScore,
+    };
     
-    if (isMounted) {
-      localStorage.setItem("carbonData", JSON.stringify(data));
-    }
+    setHistory(prevHistory => {
+        const updatedHistory = [newHistoryEntry, ...prevHistory].slice(0, 10);
+        localStorage.setItem("carbonHistory", JSON.stringify(updatedHistory));
+        return updatedHistory;
+    });
+
     try {
       const result = await getReductionStrategies(data);
       setSuggestions(result);
@@ -76,12 +82,12 @@ export default function Home() {
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="grid lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
             <DataInputForm
               onSubmit={handleDataSubmit}
-              initialData={carbonData}
               isProcessing={isLoading}
             />
+            <HistoryLog history={history} />
           </div>
           <div className="lg:col-span-3">
             {carbonData ? (
