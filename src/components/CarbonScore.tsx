@@ -11,9 +11,9 @@ export function CarbonScore({ score }: CarbonScoreProps) {
   if (score === null) return null;
 
   const getScoreColor = () => {
-    if (score > 750) return "text-green-500";
-    if (score > 500) return "text-yellow-500";
-    return "text-red-500";
+    if (score > 750) return "text-success";
+    if (score > 500) return "text-warning";
+    return "text-destructive";
   }
 
   return (

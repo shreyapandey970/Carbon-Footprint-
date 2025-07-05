@@ -66,9 +66,9 @@ export default function Home() {
 
   const badges = carbonData ? [
     { name: 'Eco-Beginner', icon: Award, unlocked: totalEmissions > 0, description: 'Calculated your first footprint.' },
-    { name: 'Energy Saver', icon: Zap, unlocked: carbonData.energyConsumption < 10000 && carbonData.energyConsumption > 0, description: 'Low energy consumption (below 10,000 kWh).' },
-    { name: 'Green Commuter', icon: Bike, unlocked: carbonData.travelEmissions < 5 && carbonData.travelEmissions > 0, description: 'Low travel emissions (below 5 tCO₂e).' },
-    { name: 'Waste Reducer', icon: Trash2, unlocked: carbonData.wasteEmissions < 2 && carbonData.wasteEmissions > 0, description: 'Low waste emissions (below 2 tCO₂e).' },
+    { name: 'Energy Saver', icon: Zap, unlocked: totalEmissions > 0 && carbonData.energyConsumption < 10000, description: 'Low energy consumption (below 10,000 kWh).' },
+    { name: 'Green Commuter', icon: Bike, unlocked: totalEmissions > 0 && carbonData.travelEmissions < 5, description: 'Low travel emissions (below 5 tCO₂e).' },
+    { name: 'Waste Reducer', icon: Trash2, unlocked: totalEmissions > 0 && carbonData.wasteEmissions < 2, description: 'Low waste emissions (below 2 tCO₂e).' },
   ] : [];
 
   return (
@@ -93,7 +93,7 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <Card>
                     <CardContent className="p-6">
-                      <h2 className="text-2xl font-bold mb-4 text-primary">Footprint Visualization</h2>
+                      <h2 className="text-2xl font-bold text-primary">Footprint Visualization</h2>
                       <p className="text-muted-foreground mb-6">A breakdown of your company's carbon emissions by scope.</p>
                       {chartData.length > 0 ? (
                         <FootprintChart data={chartData} />
