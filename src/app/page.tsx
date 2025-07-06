@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { CarbonData, HistoryEntry } from "@/types";
+import type { CarbonData, HistoryEntry, CarbonForecastData } from "@/types";
 import type { ReductionSuggestionsOutput } from "@/ai/flows/reduction-suggestions";
 import { Header } from "@/components/Header";
 import { DataInputForm } from "@/components/DataInputForm";
@@ -10,21 +10,29 @@ import { ReductionSuggestions } from "@/components/ReductionSuggestions";
 import { CarbonScore } from "@/components/CarbonScore";
 import { Badges } from "@/components/Badges";
 import { HistoryLog } from "@/components/HistoryLog";
+import { VirtualForest } from "@/components/VirtualForest";
+import { CarbonForecast } from "@/components/CarbonForecast";
 import { Card, CardContent } from "@/components/ui/card";
-import { getReductionStrategies } from "@/lib/actions";
+import { getReductionStrategies, getForecast } from "@/lib/actions";
 import { Award, Zap, Bike, Trash2 } from "lucide-react";
 
 export default function Home() {
   const [carbonData, setCarbonData] = useState<CarbonData | null>(null);
   const [suggestions, setSuggestions] =
     useState<ReductionSuggestionsOutput | null>(null);
+  const [forecastData, setForecastData] = useState<CarbonForecastData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [treeCount, setTreeCount] = useState(0);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem("carbonHistory");
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
+    }
+    const savedTrees = localStorage.getItem("treeCount");
+    if (savedTrees) {
+        setTreeCount(JSON.parse(savedTrees));
     }
   }, []);
 
@@ -32,6 +40,7 @@ export default function Home() {
     setIsLoading(true);
     setCarbonData(data);
     setSuggestions(null);
+    setForecastData(null);
 
     const totalEmissions = data.scope1Emissions + data.scope2Emissions + data.scope3Emissions;
     const carbonScore = Math.max(0, Math.round(1000 - totalEmissions / 5));
@@ -43,6 +52,18 @@ export default function Home() {
         carbonScore,
     };
     
+    // Tree planting logic
+    const previousEmissions = history.length > 0 ? history[0].totalEmissions : null;
+    if (previousEmissions !== null && totalEmissions < previousEmissions) {
+        const reduction = previousEmissions - totalEmissions;
+        const newTrees = Math.floor(reduction / 10); // 1 tree per 10 tCO₂e reduced
+        if (newTrees > 0) {
+            const updatedTreeCount = treeCount + newTrees;
+            setTreeCount(updatedTreeCount);
+            localStorage.setItem("treeCount", JSON.stringify(updatedTreeCount));
+        }
+    }
+
     setHistory(prevHistory => {
         const updatedHistory = [newHistoryEntry, ...prevHistory].slice(0, 10);
         localStorage.setItem("carbonHistory", JSON.stringify(updatedHistory));
@@ -50,10 +71,14 @@ export default function Home() {
     });
 
     try {
-      const result = await getReductionStrategies(data);
-      setSuggestions(result);
+       const [suggestionsResult, forecastResult] = await Promise.all([
+        getReductionStrategies(data),
+        getForecast(data)
+      ]);
+      setSuggestions(suggestionsResult);
+      setForecastData(forecastResult);
     } catch (error) {
-      console.error("Failed to get reduction suggestions:", error);
+      console.error("Failed to get AI insights:", error);
     } finally {
       setIsLoading(false);
     }
@@ -110,10 +135,17 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
-                  <ReductionSuggestions
-                    suggestions={suggestions}
-                    isLoading={isLoading}
-                  />
+                  <VirtualForest trees={treeCount} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <ReductionSuggestions
+                        suggestions={suggestions}
+                        isLoading={isLoading}
+                    />
+                    <CarbonForecast
+                        forecast={forecastData}
+                        isLoading={isLoading}
+                    />
                 </div>
               </div>
             ) : (

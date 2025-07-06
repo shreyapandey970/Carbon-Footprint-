@@ -15,3 +15,9 @@ export interface HistoryEntry extends CarbonData {
   totalEmissions: number;
   carbonScore: number | null;
 }
+
+export interface CarbonForecastData {
+  forecastPeriod: string;
+  forecastedEmissions: number;
+  analysis: string;
+}
